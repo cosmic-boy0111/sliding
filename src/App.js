@@ -2,17 +2,18 @@ import React, { useState, useRef } from 'react';
 import './App.css';
 
 // Import images from assets folder
-import image1 from './assets/mask2.jpg';
-import image2 from './assets/profile.jpg';
+import image1 from './assets/pexels-jovana-nesic-188639-593655.jpg';
+import image2 from './assets/pexels-minan1398-906150.jpg';
+import image3 from './assets/pexels-pixabay-53184.jpg';
+import image4 from './assets/pexels-souvenirpixels-414612.jpg';
 
 function App() {
   const [droppedImage, setDroppedImage] = useState(null);
   const [images] = useState([
     { src: image1, alt: 'Image 1' },
     { src: image2, alt: 'Image 2' },
-    { src: image1, alt: 'Image 3' },
-    { src: image2, alt: 'Image 4' },
-    { src: image1, alt: 'Image 5' },
+    { src: image3, alt: 'Image 3' },
+    { src: image4, alt: 'Image 4' },
   ]);
   const dropZoneRef = useRef(null);
   const [draggingImage, setDraggingImage] = useState(null);
