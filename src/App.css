@@ -33,38 +33,4 @@
   min-width: 80px; /* Ensure images have a minimum width */
   margin-right: 10px;
   object-fit: cover; /* Maintain aspect ratio while covering area */
-  border-radius: 8px; /* Add rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-  transition: transform 0.2s ease; /* Smooth transform on hover/touch */
-}
-
-.image-list img:active {
-  transform: scale(0.95); /* Slightly shrink the image when touched/clicked */
-}
-
-/* Add padding to the first and last image for better spacing */
-.image-list img:first-child {
-  margin-left: 5px;
-}
-
-.image-list img:last-child {
-  margin-right: 5px;
-}
-
-/* Improve scrollbar appearance */
-.image-list::-webkit-scrollbar {
-  height: 8px;
-}
-
-.image-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.image-list::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.image-list::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
