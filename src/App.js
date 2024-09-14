@@ -16,22 +16,22 @@ function App() {
   ]);
   const dropZoneRef = useRef(null);
   const [draggingImage, setDraggingImage] = useState(null);
+  const [touchStartY, setTouchStartY] = useState(null);
 
-  const handleDragStart = (e, imageSrc) => {
-    e.preventDefault();
-    setDraggingImage(imageSrc);
-  };
-
-  const handleTouchStart = (imageSrc) => {
+  const handleTouchStart = (e, imageSrc) => {
+    setTouchStartY(e.touches[0].clientY);
     setDraggingImage(imageSrc);
   };
 
   const handleTouchMove = (e) => {
-    e.preventDefault();
+    if (draggingImage && touchStartY && e.touches[0].clientY < touchStartY - 20) {
+      e.preventDefault();
+    }
   };
 
   const handleTouchEnd = (e) => {
-    e.preventDefault();
+    if (!draggingImage) return;
+
     const touch = e.changedTouches[0];
     const dropZone = dropZoneRef.current;
     const dropZoneRect = dropZone.getBoundingClientRect();
@@ -46,6 +46,7 @@ function App() {
     }
 
     setDraggingImage(null);
+    setTouchStartY(null);
   };
 
   return (
@@ -66,9 +67,7 @@ function App() {
             key={index} 
             src={image.src} 
             alt={image.alt} 
-            draggable="true"
-            onDragStart={(e) => handleDragStart(e, image.src)}
-            onTouchStart={() => handleTouchStart(image.src)}
+            onTouchStart={(e) => handleTouchStart(e, image.src)}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           />
