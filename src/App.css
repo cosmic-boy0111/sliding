@@ -10,6 +10,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  color: white;
 }
 
 .dropped-image {
@@ -29,5 +30,6 @@
 .image-list img {
   height: 80%;
   margin-right: 10px;
-  cursor: pointer;
+  cursor: move; /* Indicates the image is draggable */
+  touch-action: none; /* Prevents scrolling while dragging on touch devices */
 }
