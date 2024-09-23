@@ -25,12 +25,12 @@
   overflow-x: auto;
   padding: 10px;
   background-color: #f0f0f0;
-  -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+  /*-webkit-overflow-scrolling: touch; /* (imp) For smooth scrolling on iOS */
 }
 
 .image-list img {
   height: 80%;
-  /*min-width: 80px; /* Ensure images have a minimum width */
+  min-width: 80px; /* Ensure images have a minimum width */
   margin-right: 10px;
-  object-fit: cover; /* Maintain aspect ratio while covering area */
+  object-fit: cover; /* (imp) Maintain aspect ratio while covering area */
 }
