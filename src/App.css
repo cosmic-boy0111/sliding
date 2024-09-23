@@ -30,7 +30,7 @@
 
 .image-list img {
   height: 80%;
-  min-width: 80px; /* Ensure images have a minimum width */
+  width: 100%; /* Ensure images have a minimum width */
   margin-right: 10px;
   object-fit: cover; /* (imp) Maintain aspect ratio while covering area */
 }
