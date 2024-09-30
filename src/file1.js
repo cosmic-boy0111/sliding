@@ -9,6 +9,8 @@ import PanoramicIcon from '../../icons/Panoramic';
 import { useCustomDragImage } from '../../../modules/mobileDragDrop';
 import useOnClickOutside from '../../../HOCs/useOnClickOutside';
 import { Wrapper, ImageContainer, ImageFallback, PanoramicWrapper, ImageWrapper } from './Styles';
+
+import { polyfill } from 'react-lifecycles-compat';
  
 const SelectedImage = ({
   photo,
@@ -33,6 +35,8 @@ const SelectedImage = ({
   useOnClickOutside(OnClickOutsideRef, () => setIsClicked(false));
 
   const handleTouchStart = (e) => {
+    setIsClicked(!isClicked);
+    onClickToSelectPhoto(photo);
     setTouchStartY(e.touches[0].clientY);
     setDraggingImage(photo.urls.small);
   };
@@ -47,7 +51,7 @@ const SelectedImage = ({
     if (!draggingImage) return;
 
     const touch = e.changedTouches[0];
-    const dropZone = document.querySelector('.drop-zone');
+    const dropZone = document.querySelector('.canvas-container');
     const dropZoneRect = dropZone.getBoundingClientRect();
 
     if (
@@ -56,10 +60,16 @@ const SelectedImage = ({
       touch.clientY >= dropZoneRect.top &&
       touch.clientY <= dropZoneRect.bottom
     ) {
-      e.dataTransfer.setData('photo', photo);
-      e.dataTransfer.setData('type', 'PHOTO');
-      onClickEndPhoto();
-      onDragStart(photo);
+      const context = dropZone.getContext('2d');
+      const img = new Image();
+      img.src = photo.urls.medium;
+
+      img.onload = () => {
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw the image on the canvas
+        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
     }
 
     setDraggingImage(null);
@@ -83,13 +93,10 @@ const SelectedImage = ({
         </PanoramicWrapper>
       )}
       <Ticks count={photo.selectedCount} />
-      <ImageContainer
+      {isMobileView ? 
+        <ImageContainer
         draggable
         ref={dragRef}
-        onClick={() => {
-          setIsClicked(!isClicked);
-          onClickToSelectPhoto(photo);
-        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -112,7 +119,41 @@ const SelectedImage = ({
           />
         </ImageWrapper>
       </ImageContainer>
-    </Wrapper>
+        : 
+        <ImageContainer
+          draggable
+          ref={dragRef}
+          onClick={() => {
+            setIsClicked(!isClicked);
+            onClickToSelectPhoto(photo);
+          }}
+          onDragStart={e => {
+            e.dataTransfer.setData('photo', photo);
+            e.dataTransfer.setData('type', 'PHOTO');
+            onClickEndPhoto();
+            onDragStart(photo);
+          }}
+          isLandscapePanoramic={isLandscapePanoramic}
+          isPortraitPanoramic={isPortraitPanoramic}
+          width={width}
+          panoAspect={panoAspect}
+          isClicked={isClicked}
+        >
+          <ImageWrapper>
+            <ImageFallback
+              src={photo.rotation > 0 ? photo.urls.medium : photo.urls.small}
+              fallbackImage={<UnavailableImage />}
+              highlight={photo.selectedCount}
+              rotation={photo.rotation ? photo.rotation : undefined}
+              newWidth={rotated ? style.height - 4 : undefined}
+              newHeight={rotated ? style.width - 4 : undefined}
+              rotated={rotated}
+              alt=""
+            />
+          </ImageWrapper>
+        </ImageContainer>
+      }
+    </Wrapper>  
   );
 };
  
