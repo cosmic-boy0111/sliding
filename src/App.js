@@ -52,6 +52,20 @@ const App = () => {
 
   return (
     <div className="container">
+      
+      <div
+        className="dropArea"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+      >
+        {droppedImages.length === 0 ? (
+          <p>Drag and drop images here</p>
+        ) : (
+          droppedImages.map((image, index) => (
+            <img key={index} src={image} alt={`dropped-${index}`} className="droppedImage" />
+          ))
+        )}
+      </div>
       <div className="imageList">
         {images.map((image, index) => (
           <img
@@ -66,19 +80,6 @@ const App = () => {
             onTouchEnd={handleTouchEnd}
           />
         ))}
-      </div>
-      <div
-        className="dropArea"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        {droppedImages.length === 0 ? (
-          <p>Drag and drop images here</p>
-        ) : (
-          droppedImages.map((image, index) => (
-            <img key={index} src={image} alt={`dropped-${index}`} className="droppedImage" />
-          ))
-        )}
       </div>
     </div>
   );
