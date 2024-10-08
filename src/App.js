@@ -114,7 +114,7 @@ const App = () => {
                 height : '20vh',
                 display : 'flex',
                 width : '100%',
-                overflow : 'scroll'
+                overflow : 'scroll !important'
                 // border : '1px solid blue'
               }}>
 
