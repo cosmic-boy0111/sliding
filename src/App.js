@@ -115,7 +115,7 @@ const App = () => {
                 display : 'flex',
                 width : '100%',
                 overflow : 'auto',
-                WebkitOverflowScrolling : isMobile ? 'touch' : 'auto'
+                WebkitOverflowScrolling : 'touch'
                 // border : '1px solid blue'
               }}>
 
