@@ -1,5 +1,5 @@
 import { shallowEqual } from 'recompose';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTheme } from 'styled-components';
  
@@ -9,8 +9,6 @@ import PanoramicIcon from '../../icons/Panoramic';
 import { useCustomDragImage } from '../../../modules/mobileDragDrop';
 import useOnClickOutside from '../../../HOCs/useOnClickOutside';
 import { Wrapper, ImageContainer, ImageFallback, PanoramicWrapper, ImageWrapper } from './Styles';
-
-import { polyfill } from 'react-lifecycles-compat';
  
 const SelectedImage = ({
   photo,
@@ -29,53 +27,35 @@ const SelectedImage = ({
 }) => {
   const [dragRef] = useCustomDragImage(photo);
   const [isClicked, setIsClicked] = React.useState(false);
-  const [draggingImage, setDraggingImage] = React.useState(null);
-  const [touchStartY, setTouchStartY] = React.useState(null);
   const OnClickOutsideRef = React.useRef();
   useOnClickOutside(OnClickOutsideRef, () => setIsClicked(false));
+  const [draggedImage, setDraggedImage] = useState(null);
 
-  const handleTouchStart = (e) => {
-    setIsClicked(!isClicked);
-    onClickToSelectPhoto(photo);
-    setTouchStartY(e.touches[0].clientY);
-    setDraggingImage(photo.urls.small);
+  const handleTouchStart = (e, image) => {
+    setDraggedImage(image);
   };
 
   const handleTouchMove = (e) => {
-    if (draggingImage && touchStartY && e.touches[0].clientY < touchStartY - 20) {
-      e.preventDefault();
-    }
+    e.preventDefault();
   };
 
   const handleTouchEnd = (e) => {
-    if (!draggingImage) return;
+    console.log("inside touch");
+    const dropZone = document.elementFromPoint(
+      e.changedTouches[0].clientX,
+      e.changedTouches[0].clientY
+    );
+    if (dropZone && dropZone.classList.contains("canvas-container")) {
 
-    const touch = e.changedTouches[0];
-    const dropZone = document.querySelector('.canvas-container');
-    const dropZoneRect = dropZone.getBoundingClientRect();
+      e.dataTransfer.setData('photo', photo);
+      e.dataTransfer.setData('type', 'PHOTO');
+      onClickEndPhoto();
+      onDragStart(photo);
 
-    if (
-      touch.clientX >= dropZoneRect.left &&
-      touch.clientX <= dropZoneRect.right &&
-      touch.clientY >= dropZoneRect.top &&
-      touch.clientY <= dropZoneRect.bottom
-    ) {
-      const context = dropZone.getContext('2d');
-      const img = new Image();
-      img.src = photo.urls.medium;
-
-      img.onload = () => {
-        // Clear the canvas
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        // Draw the image on the canvas
-        context.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
     }
-
-    setDraggingImage(null);
-    setTouchStartY(null);
+    setDraggedImage(null);
   };
-
+ 
   return (
     <Wrapper
       style={style}
@@ -93,13 +73,8 @@ const SelectedImage = ({
         </PanoramicWrapper>
       )}
       <Ticks count={photo.selectedCount} />
-      {isMobileView ? 
-        <ImageContainer
-        draggable
+      <ImageContainer
         ref={dragRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         isLandscapePanoramic={isLandscapePanoramic}
         isPortraitPanoramic={isPortraitPanoramic}
         width={width}
@@ -108,6 +83,7 @@ const SelectedImage = ({
       >
         <ImageWrapper>
           <ImageFallback
+            draggable
             src={photo.rotation > 0 ? photo.urls.medium : photo.urls.small}
             fallbackImage={<UnavailableImage />}
             highlight={photo.selectedCount}
@@ -116,44 +92,23 @@ const SelectedImage = ({
             newHeight={rotated ? style.width - 4 : undefined}
             rotated={rotated}
             alt=""
+            onDragStart={e => {
+              e.dataTransfer.setData('photo', photo);
+              e.dataTransfer.setData('type', 'PHOTO');
+              onClickEndPhoto();
+              onDragStart(photo);
+            }}
+            onClick={() => {
+              setIsClicked(!isClicked);
+              onClickToSelectPhoto(photo);
+            }}
+            onTouchStart={(e) => handleTouchStart(e, photo.urls.small)}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           />
         </ImageWrapper>
       </ImageContainer>
-        : 
-        <ImageContainer
-          draggable
-          ref={dragRef}
-          onClick={() => {
-            setIsClicked(!isClicked);
-            onClickToSelectPhoto(photo);
-          }}
-          onDragStart={e => {
-            e.dataTransfer.setData('photo', photo);
-            e.dataTransfer.setData('type', 'PHOTO');
-            onClickEndPhoto();
-            onDragStart(photo);
-          }}
-          isLandscapePanoramic={isLandscapePanoramic}
-          isPortraitPanoramic={isPortraitPanoramic}
-          width={width}
-          panoAspect={panoAspect}
-          isClicked={isClicked}
-        >
-          <ImageWrapper>
-            <ImageFallback
-              src={photo.rotation > 0 ? photo.urls.medium : photo.urls.small}
-              fallbackImage={<UnavailableImage />}
-              highlight={photo.selectedCount}
-              rotation={photo.rotation ? photo.rotation : undefined}
-              newWidth={rotated ? style.height - 4 : undefined}
-              newHeight={rotated ? style.width - 4 : undefined}
-              rotated={rotated}
-              alt=""
-            />
-          </ImageWrapper>
-        </ImageContainer>
-      }
-    </Wrapper>  
+    </Wrapper>
   );
 };
  
