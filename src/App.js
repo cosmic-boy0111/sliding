@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { DndProvider, DragPreviewImage, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend'; // Import TouchBackend
 import image1 from './assets/pexels-jovana-nesic-188639-593655.jpg';
@@ -14,23 +14,36 @@ const ItemType = {
 
 // Draggable Item Component
 const DraggableItem = ({ item }) => {
-    const [{ isDragging }, drag] = useDrag(() => ({
+    const [{ isDragging, currentOffset }, drag, preview] = useDrag(() => ({
         type: ItemType.ITEM,
         item: item,
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
+            currentOffset: monitor.getClientOffset(), // Get current mouse/touch position
         }),
     }));
 
     return (
-        <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1, marginRight : '1rem' }}>
-            <img src={item.image} alt={item.id} style={{
-              width : '100px',
-              height : '100px',
-              boxSizing : 'border-box',
-              objectFit : 'cover',
-            }} />
-        </div>
+        <>
+            <DragPreviewImage connect={preview} src={item.image} />
+            <div ref={drag} style={{
+                opacity: isDragging ? 0.5 : 1,
+                marginRight: '1rem',
+                width: '100px',
+                height: '100px', // Change to absolute for dragging
+                left: currentOffset ? currentOffset.x - 50 : 0, // Center the image
+                top: currentOffset ? currentOffset.y - 50 : 0,
+                touchAction: 'none', // Prevent default touch actions
+            }}>
+                <img src={item.image} alt={item.id} style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    boxSizing: 'border-box',
+                    backgroundColor: 'lightgray'
+                }} />
+            </div>
+        </>
     );
 };
 
