@@ -1,149 +1,82 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import './App.css';
 
-function App() {
-    const innerDivRef = useRef(null);
-    const innerDiv1Ref = useRef(null);
-    const mouseStartRef = useRef({ x: 0, y: 0 });
+const ImageDragDrop = () => {
+  const images = [
+    { id: "1", url: "https://via.placeholder.com/150/FF0000/FFFFFF?Text=Image1" },
+    { id: "2", url: "https://via.placeholder.com/150/00FF00/FFFFFF?Text=Image2" },
+    { id: "3", url: "https://via.placeholder.com/150/0000FF/FFFFFF?Text=Image3" },
+  ];
 
-    const handleMouseDown = (e) => {
-        innerDivRef.current.isDown = true;
-        mouseStartRef.current.x = e.pageX;
-        mouseStartRef.current.y = e.pageY;
-        innerDivRef.current.style.cursor = 'grabbing';
-    };
+  const [imageList, setImageList] = useState(images);
+  const [droppedImage, setDroppedImage] = useState(null);
 
-    const handleMouseLeave = () => {
-        innerDivRef.current.isDown = false;
-        innerDivRef.current.style.cursor = 'grab';
-    };
+  const onDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
 
-    const handleMouseUp = () => {
-        innerDivRef.current.isDown = false;
-        innerDivRef.current.style.cursor = 'grab';
-    };
+    if (!destination) {
+      return;
+    }
 
-    const handleMouseMove = (e) => {
-        if (!innerDivRef.current.isDown) return;
-        const dx = e.pageX - mouseStartRef.current.x;
-        const dy = e.pageY - mouseStartRef.current.y;
+    // If dropped in the drop area
+    if (destination.droppableId === "drop-area" && source.droppableId === "image-list") {
+      const draggedImage = imageList.find(image => image.id === draggableId);
+      setDroppedImage(draggedImage.url);
+    }
+  };
 
-        if (Math.abs(dx) > Math.abs(dy)) {
-            // Move horizontally to scroll
-            innerDivRef.current.scrollLeft -= dx;
-        } else {
-            // Move vertically to drag
-            // Logic to handle dragging of images if needed
-            // This could involve additional state management
-        }
+  return (
+    <div className="container">
+      <h2>Drag and Drop Images (Using react-beautiful-dnd)</h2>
 
-        // Update the starting position
-        mouseStartRef.current.x = e.pageX;
-        mouseStartRef.current.y = e.pageY;
-    };
-
-    const handleDragStart = (e) => {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', e.target.src);
-        // e.target.style.display = 'none'; // Hide the image during drag
-    };
-
-    const handleDragEnd = (e) => {
-        e.target.style.display = 'block'; // Show the image again after drag
-    };
-
-    const handleDrop = (e) => {
-        // e.preventDefault();
-        const index = e.dataTransfer.getData('text/plain');
-        const img = innerDivRef.current.children[index].cloneNode(true);
-        img.draggable = false;
-        innerDiv1Ref.current.appendChild(img);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault(); // Necessary to allow drop
-    };
-
-    // Scroll detection
-    useEffect(() => {
-        const handleScroll = () => {
-            if (innerDivRef.current) {
-                console.log('Scroll position:', innerDivRef.current.scrollLeft);
-            }
-        };
-
-        const innerDiv = innerDivRef.current;
-        innerDiv.addEventListener('scroll', handleScroll);
-        return () => {
-            innerDiv.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    return (
-        <div
-            id="container"
-            style={{
-                height: '90vh',
-                width: '90vw',
-                border: '2px solid red',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}
-        >
+      {/* DragDropContext handles all drag-and-drop events */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="image-list" direction="horizontal">
+          {(provided) => (
             <div
-                id="inner-div-1"
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                style={{
-                    height: '60%',
-                    width: '80%',
-                    backgroundColor: 'lightblue',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            />
-            <div
-                id="inner-div-2"
-                ref={innerDivRef}
-                style={{
-                    height: '20%',
-                    width: '40%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginTop: '20px',
-                    overflowX: 'hidden',
-                    whiteSpace: 'nowrap',
-                    cursor: 'grab',
-                }}
-                onMouseDown={handleMouseDown}
-                onMouseLeave={handleMouseLeave}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
+              className="image-list"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
             >
-                {Array.from({ length: 5 }).map((_, index) => (
+              {imageList.map((image, index) => (
+                <Draggable key={image.id} draggableId={image.id} index={index}>
+                  {(provided) => (
                     <img
-                        key={index}
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkGLtZgjllhdhJUi8EjTdnq-0cOgB_7htCcg&s"
-                        alt={`Image ${index + 1}`}
-                        draggable
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        style={{
-                            width: '160px',
-                            height: '110px',
-                            margin: '10px',
-                            userSelect: 'none',
-                            pointerEvents: 'auto',
-                            display: 'block',
-                        }}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      src={image.url}
+                      alt={`img-${index}`}
+                      className="draggable-image"
                     />
-                ))}
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-        </div>
-    );
-}
+          )}
+        </Droppable>
 
-export default App;
+        <Droppable droppableId="drop-area">
+          {(provided) => (
+            <div
+              className="drop-area"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {droppedImage ? (
+                <img src={droppedImage} alt="Dropped" className="dropped-image" />
+              ) : (
+                <p>Drop Here</p>
+              )}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </div>
+  );
+};
+
+export default ImageDragDrop;

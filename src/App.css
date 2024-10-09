@@ -1,24 +1,66 @@
-.container{
+.container {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  /* padding: 1rem; */
+  align-items: center;
+  margin-top: 50px;
 }
 
-.dropArea{
-  height: 75vh;
-  width: 100%;
-  /* border: 2px dotted #1b1b1b; */
-  background-color: aqua;
-}
-
-.imageList{
-  overflow: auto;
+.image-list {
   display: flex;
+  margin-top: 10rem;
+  width: 100%;
+  gap: 15px;
+  margin-bottom: 20px;
   flex-direction: row;
+  overflow: scroll;
 }
 
-.draggableImage{
-  margin-right: 1rem;
+.draggable-image {
+  width: 150px;
+  height: 150px;
+  cursor: grab;
+}
+
+.drop-area {
+  width: 300px;
+  height: 300px;
+  border: 2px dashed #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  background-color: #f9f9f9;
+}
+
+.dropped-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Touch preview image */
+.touch-preview {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+@media (max-width: 600px) {
+
+  .drop-area {
+    width: 100%;
+    height: 300px;
+  }
+
+  .draggable-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .touch-preview {
+    width: 100px;
+    height: 100px;
+  }
 }
